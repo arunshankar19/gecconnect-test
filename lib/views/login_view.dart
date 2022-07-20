@@ -3,14 +3,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gecconnect/firebase_options.dart';
 
-class Register extends StatefulWidget {
-  const Register({Key? key}) : super(key: key);
+class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
 
   @override
-  State<Register> createState() => _RegisterState();
+  State<Login> createState() => _LoginState();
 }
 
-class _RegisterState extends State<Register> {
+class _LoginState extends State<Login> {
   late final TextEditingController _email;
   late final TextEditingController _password;
 
@@ -31,7 +31,7 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      appBar: AppBar(title: const Text('Login')),
       body: FutureBuilder(
         future: Firebase.initializeApp(
                   options: DefaultFirebaseOptions.currentPlatform,
@@ -63,30 +63,29 @@ class _RegisterState extends State<Register> {
                 );
                 final email = _email.text;
                 final pass = _password.text;
-                try{
-                final userCred = await FirebaseAuth.instance
-                    .createUserWithEmailAndPassword(email: email, password: pass);
+                try {
+                  final userCred = await FirebaseAuth.instance
+                    .signInWithEmailAndPassword(email: email, password: pass);
+                print(userCred);
                 }
                 on FirebaseAuthException catch(e) {
                   switch(e.code) {
-                    case 'invalid-email' : 
-                    print('invalid Email');
+                    case 'invalid-email' : print('Invaid Email');
                     break;
-                    case 'wrong-password':
-                    print('Wrong Password');
+                    case 'wrong-password' : print('Wrong credentials');
                     break;
-                    case 'user-not-found':
-                    print('Invalid user');   
+                    case 'user-not-found' : print('no user found');
+                    break;
                   }
+                  print(e.code);
                 }
-                // print(userCred);
               },
-              child: const Text('Register')),
-              TextButton(onPressed: (){
-                Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
-              }, child: const Text('Already have an account? Login Here!'))
+              child: const Text('Login')),
+              TextButton(onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil('/register/', (route) => false);
+              }, child: const Text('Do not have a account? Create one!'))
         ]);
-        default: return const Center(child: CircularProgressIndicator.adaptive());
+        default: return const Text('Loading.....');
           }
           
         }, 

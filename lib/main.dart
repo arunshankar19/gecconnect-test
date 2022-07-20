@@ -1,6 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gecconnect/views/emailverify_view.dart';
+import 'package:gecconnect/views/login_view.dart';
+import 'package:gecconnect/views/register_view.dart';
 import 'firebase_options.dart';
 
 void main() {
@@ -18,95 +21,42 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const Login(),
+      home: const HomePage(),
+      routes: {
+        '/login/':(context) => const Login(),
+        '/register/':(context) => const Register(),
+        '/verify/':(context) => const VerifyEmail()
+      },
     );
   }
 }
 
-class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
-
-  @override
-  State<Login> createState() => _LoginState();
-}
-
-class _LoginState extends State<Login> {
-  late final TextEditingController _email;
-  late final TextEditingController _password;
-
-  @override
-  void initState() {
-    _email = TextEditingController();
-    _password = TextEditingController();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _email.dispose();
-    _password.dispose();
-    super.dispose();
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
-      body: FutureBuilder(
-        future: Firebase.initializeApp(
-                  options: DefaultFirebaseOptions.currentPlatform,
-                ),
-        builder:(context, snapshot) {
-          switch(snapshot.connectionState) {
-            case ConnectionState.done:
-              return Column(children: [
-          TextField(
-            controller: _email,
-            decoration: const InputDecoration(
-              hintText: 'Enter your Email',
-            ),
-            enableSuggestions: false,
-            autocorrect: false,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          TextField(
-            obscureText: true,
-            enableSuggestions: false,
-            autocorrect: false,
-            decoration: const InputDecoration(hintText: 'Password'),
-            controller: _password,
-          ),
-          TextButton(
-              onPressed: () async {
-                await Firebase.initializeApp(
-                  options: DefaultFirebaseOptions.currentPlatform,
-                );
-                final email = _email.text;
-                final pass = _password.text;
-                try {
-                  final userCred = await FirebaseAuth.instance
-                    .signInWithEmailAndPassword(email: email, password: pass);
-                print(userCred);
-                }
-                on FirebaseAuthException catch(e) {
-                  switch(e.code) {
-                    case 'invalid-email' : print('Invaid Email');
-                    break;
-                    case 'wrong-password' : print('Wrong credentials');
-                    break;
-                    case 'user-not-found' : print('no user found');
-                    break;
-                  }
-                  print(e.code);
-                }
-              },
-              child: const Text('Login'))
-        ]);
-        default: return Text('Loading.....');
-          }
-          
-        }, 
+    return FutureBuilder(
+          future: Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
       ),
-    );
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          
+          case ConnectionState.done:
+          final user = FirebaseAuth.instance.currentUser;
+          if (user?.emailVerified ?? false) {
+            return const Login();
+          }
+          else {
+            // Navigator.of(context).pushNamedAndRemoveUntil('/veify/', (route) => false); 
+            return const VerifyEmail();           
+          }
+          default:
+          // Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
+          return const Login();
+          // return const Text('Loading....');
+        }
+      },);
   }
 }
