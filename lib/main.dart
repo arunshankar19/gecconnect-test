@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gecconnect/views/emailverify_view.dart';
 import 'package:gecconnect/views/login_view.dart';
+import 'package:gecconnect/views/main_page_view.dart';
 import 'package:gecconnect/views/register_view.dart';
 import 'firebase_options.dart';
+import 'package:gecconnect/constants/routes.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,9 +25,10 @@ class MyApp extends StatelessWidget {
       ),
       home: const HomePage(),
       routes: {
-        '/login/':(context) => const Login(),
-        '/register/':(context) => const Register(),
-        '/verify/':(context) => const VerifyEmail()
+        loginRoute:(context) => const Login(),
+        registerRoute:(context) => const Register(),
+        verifyRoute:(context) => const VerifyEmail(),
+        mainRoute:(context) => const SigninView()
       },
     );
   }
@@ -45,16 +48,21 @@ class HomePage extends StatelessWidget {
           
           case ConnectionState.done:
           final user = FirebaseAuth.instance.currentUser;
-          if (user?.emailVerified ?? false) {
-            return const Login();
+          if(user != null) {
+          if (user.emailVerified) {
+            return const SigninView();
           }
           else {
             // Navigator.of(context).pushNamedAndRemoveUntil('/veify/', (route) => false); 
             return const VerifyEmail();           
           }
+          }
+           else {
+            return const Login();
+          }
           default:
           // Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
-          return const Login();
+          return const Center(child: CircularProgressIndicator.adaptive(),);
           // return const Text('Loading....');
         }
       },);

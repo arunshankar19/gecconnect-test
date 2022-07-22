@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gecconnect/constants/routes.dart';
 
 class VerifyEmail extends StatefulWidget {
   const VerifyEmail({Key? key}) : super(key: key);
@@ -20,7 +21,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
         await user?.sendEmailVerification();
         }, child: const Text('Verify Mail')),
         TextButton(onPressed: (){
-          Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
+          Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false);
         }, child: const Text('Login'))
       ]),
     );
